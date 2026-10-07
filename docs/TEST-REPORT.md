@@ -45,4 +45,8 @@ python3 examples/landing-page/check_page.py
 
 คำสั่งสุดท้ายตั้งใจ FAIL ให้ใช้ขั้นตอนสำเนาและเฉลยใน [README](../README.md) เพื่อตรวจผลหลังแก้ ไม่แก้ fixture baseline ในชุดแจก
 
-CI ตรวจบน Ubuntu/macOS/Windows กับ Python 3.9 และ 3.13 ดูผลของ commit ปัจจุบันที่ [Actions](https://github.com/Boom-Vitt/songmai/actions) การมี workflow file เพียงอย่างเดียวไม่พิสูจน์ว่าทุก OS ผ่านแล้ว
+## ผล CI ที่ยืนยันแล้ว
+
+[Run 37577491674](https://github.com/Boom-Vitt/songmai/actions/runs/37577491674) ของ commit `5a47b3f` ผ่านทั้ง 6 jobs: Ubuntu/macOS/Windows × Python 3.9/3.13 โดยแต่ละ job รัน CLI tests, ตรวจ sample handoff และยืนยัน baseline FAIL → solution PASS
+
+โค้ดและ workflow ของ release v1.0.0 เหมือน commit ที่ตรวจนี้ การแก้ถัดมาเพิ่มเอกสารหลักฐานเท่านั้น ดูผลของ commit ปัจจุบันเพิ่มเติมที่ [Actions](https://github.com/Boom-Vitt/songmai/actions)
