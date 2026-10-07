@@ -2,7 +2,19 @@
 
 วันที่: 2026-10-07 (Asia/Bangkok)
 
-## สิ่งที่ตรวจแล้วในเครื่อง
+## รุ่น 1.1 — ตรวจ handoff ล้าสมัย
+
+- Python 3.9.6 บน macOS: tests เดิม 13 ข้อและ tests ของ seal/resume 9 ข้อ รวม 22 ข้อผ่าน โดยรัน CLI จริง
+- Seal เก็บ hash ของเอกสารและไฟล์อ้างอิง; ย้าย snapshot กับไฟล์ไป workspace ใหม่ที่ไม่มี Git แล้ว resume ได้ UNCHANGED โดยไม่แก้ไฟล์ใดใน workspace
+- แก้เนื้อหาไฟล์โดยคงขนาดและ mtime เดิม: resume ได้ CHANGED + STALE ด้วย exit 1 ไม่พึ่ง metadata เพื่อเดาว่าไฟล์เหมือนเดิม
+- แก้เอกสาร ไฟล์หาย และ Git branch/HEAD/local edits เปลี่ยน ถูกตรวจพบ รวมถึงแก้ไฟล์ tracked ที่มี local edits ก่อน seal อยู่แล้ว
+- Snapshot ผิด schema/version, path ออกนอก root, snapshot symlink, snapshot อ้างตัวเอง และแทนไฟล์ที่ไม่ใช่ snapshot ถูกปฏิเสธ ไม่มี Traceback หรือ UNCHANGED ปลอมในกรณีที่ตรวจ
+- Seal ไม่ทับ snapshot โดยปริยาย; --replace ใช้กับ snapshot เดิมที่ถูก schema และแทนแบบ atomic โดยไม่แตะไฟล์งาน
+- Resume ไม่ execute คำสั่งในเอกสาร ไม่ restore/reset Git และไม่เปลี่ยน snapshot เก่าเมื่อพบ STALE
+
+เดโม seal → UNCHANGED → แก้ app.py → CHANGED/STALE → ตรวจ solution PASS ผ่านใน temporary workspace โดยใช้ Skill ที่คัดลอกไปอีกตำแหน่ง Snapshot เก่าไม่ถูกทับ และไม่มี __pycache__ เกิดใน Skill ที่ติดตั้ง ดูคำสั่งรันซ้ำใน README
+
+## หลักฐานเดิมของรุ่น 1.0
 
 - Python 3.9.6 บน macOS: CLI integration tests 13 ข้อผ่าน โดยเรียกสคริปต์จริงผ่าน subprocess กับไฟล์ใน temporary workspace
 - ชื่อไฟล์ไทย/ช่องว่าง, root ระบุเอง, working directory คนละตำแหน่ง, UTF-8 BOM/CRLF และบรรทัดสุดท้ายไม่มี newline ผ่าน
@@ -29,7 +41,7 @@
 
 ตัวอย่าง Claude → Codex ใน README เป็นการจำลอง role ผ่านไฟล์ fixture/solution ไม่ใช่การเปิดบริการ Claude แล้วสั่ง Codex ต่อจริง ไม่ได้วัด token เวลา ค่าใช้จ่าย หรืออัตราความสำเร็จของโมเดล
 
-ตัวตรวจอ่าน HANDOFF.md และตรวจว่าทุก path เป็นไฟล์ภายใน root เท่านั้น ไม่ตรวจความจริงของสรุป ไม่อ่านเนื้อหาไฟล์อ้างอิง ไม่ตรวจว่า code ถูกต้องหรือคำสั่งได้รับอนุญาต และไม่รับประกันว่าข้อมูลจำเป็นถูกแนบมาครบ
+ตัวตรวจเดิม check_handoff.py อ่าน HANDOFF.md และตรวจว่าทุก path เป็นไฟล์ภายใน root เท่านั้น ส่วน seal/resume อ่านเพื่อคำนวณ hash แล้วเทียบกับ snapshot ตอนส่ง ทั้งคู่ไม่ตรวจความจริงของสรุป ไม่ตรวจว่า code ถูกต้องหรือคำสั่งได้รับอนุญาต และไม่รับประกันว่าข้อมูลจำเป็นถูกแนบมาครบ Git fingerprint ไม่อ่านเนื้อหา untracked ที่ไม่ได้อ้าง ไม่ตรวจ ignored files ที่ไม่ได้อ้าง ดูขอบเขตเต็มใน [WORKFLOW](../WORKFLOW.md)
 
 ผล `PASS` ของตัวตรวจและผล `PASS` ของ check_page.py เป็นคนละหลักฐาน: baseline handoff อ้างไฟล์ถูกต้องได้ แม้ renderer ยังไม่ผ่าน acceptance check
 
@@ -49,4 +61,4 @@ python3 examples/landing-page/check_page.py
 
 [Run 37577491674](https://github.com/Boom-Vitt/songmai/actions/runs/37577491674) ของ commit `5a47b3f` ผ่านทั้ง 6 jobs: Ubuntu/macOS/Windows × Python 3.9/3.13 โดยแต่ละ job รัน CLI tests, ตรวจ sample handoff และยืนยัน baseline FAIL → solution PASS
 
-โค้ดและ workflow ของ release v1.0.0 เหมือน commit ที่ตรวจนี้ การแก้ถัดมาเพิ่มเอกสารหลักฐานเท่านั้น ดูผลของ commit ปัจจุบันเพิ่มเติมที่ [Actions](https://github.com/Boom-Vitt/songmai/actions)
+Run นี้เป็นหลักฐานของ release v1.0.0 ส่วนรุ่น 1.1 เพิ่ม seal/resume, tests และเดโมตรวจ stale ใน workflow เดิม ดูผลของ commit ปัจจุบันที่ [Actions](https://github.com/Boom-Vitt/songmai/actions)

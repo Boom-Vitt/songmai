@@ -6,7 +6,7 @@ import sys
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
 
-def check(handoff, root):
+def references(handoff):
     text = handoff.read_text(encoding='utf-8-sig')
     section = []
     sections = 0
@@ -29,28 +29,43 @@ def check(handoff, root):
         elif active and line.strip():
             section.append(line.strip())
     if sections != 1 or fence is not None:
-        return ['expected exactly one reference section outside closed code fences'], 0
+        raise ValueError('expected exactly one reference section outside closed code fences')
     if section == ['- ไม่มีไฟล์อ้างอิง']:
-        return [], 0
+        return []
     paths = []
     for line in section:
         match = re.fullmatch(r'- `([^`]+)`(?:\s+[^`]*)?', line)
         if not match:
-            return ['malformed reference; use - `relative/path` — description'], 0
+            raise ValueError('malformed reference; use - `relative/path` — description')
         paths.append(match.group(1))
     if not paths:
-        return ['empty reference section; list files or - ไม่มีไฟล์อ้างอิง'], 0
+        raise ValueError('empty reference section; list files or - ไม่มีไฟล์อ้างอิง')
+    return paths
+
+
+def resolve_reference(path, root):
+    if (PurePosixPath(path).is_absolute() or PureWindowsPath(path).drive
+            or '..' in PurePosixPath(path).parts or '\\' in path):
+        raise ValueError(f'unsafe path: {path}')
+    target = (root / path).resolve()
+    if not target.is_relative_to(root):
+        raise ValueError(f'outside workspace: {path}')
+    if not target.is_file():
+        raise ValueError(f'missing file: {path}')
+    return target
+
+
+def check(handoff, root):
+    try:
+        paths = references(handoff)
+    except ValueError as error:
+        return [str(error)], 0
     errors = []
     for path in paths:
-        if (PurePosixPath(path).is_absolute() or PureWindowsPath(path).drive
-                or '..' in PurePosixPath(path).parts or '\\' in path):
-            errors.append(f'unsafe path: {path}')
-            continue
-        target = (root / path).resolve()
-        if not target.is_relative_to(root):
-            errors.append(f'outside workspace: {path}')
-        elif not target.is_file():
-            errors.append(f'missing file: {path}')
+        try:
+            resolve_reference(path, root)
+        except ValueError as error:
+            errors.append(str(error))
     return errors, len(paths)
 
 
