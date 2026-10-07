@@ -10,6 +10,20 @@
 - `--help` ผ่าน; ไม่มี argument ได้ exit 2
 - Sample HANDOFF.md ตรวจผ่าน 3 ไฟล์; baseline check fail จริงที่ title assertion ด้วย exit 1 และสำเนาที่ใช้ solution ผ่านด้วย exit 0
 - Skill frontmatter ตรวจด้วย skill-creator quick_validate ผ่าน ชื่อและไฟล์ resources อยู่ใน folder เดียวกันสำหรับการติดตั้ง
+- ZIP ที่สร้างจาก git แตกใหม่ใน temporary directory แล้วรัน README demo และ CLI tests ผ่าน ไม่รวม .git, scratch workspace หรือ bytecode
+- ทดลองติดตั้งโดยคัดลอกเฉพาะ folder ของ Skill ไปตำแหน่งใหม่ แล้วใช้ checker จาก working directory อีกแห่งได้ โดยไม่พึ่งไฟล์จาก repo เดิม
+
+## ทดลองส่งต่อกับ agent ที่มีบริบทใหม่
+
+ใช้ Codex subagents ใน isolated temporary workspace โดยจำกัดสิทธิ์ให้อ่าน/แก้เฉพาะ fixture และ Skill ที่เกี่ยวข้อง:
+
+1. **Control ไม่มี Skill:** agent เขียนสรุปงานและรายงาน baseline FAIL ถูกต้อง แต่ไม่มีส่วนไฟล์อ้างอิงตาม protocol จึงไม่ผ่าน checker การทดสอบนี้แสดงความต่างของรูปแบบเอกสาร ไม่ได้พิสูจน์ว่า agent ไม่มี Skill สรุปงานไม่ได้
+2. **ผู้สร้างใช้ Skill:** agent อีกตัวสร้าง HANDOFF.md จากไฟล์จริง checker ผ่าน 3 reference และ hash ของ BRIEF.md, app.py, check_page.py ก่อน/หลังตรงกัน สร้างเอกสารอย่างเดียวตามคำขอ
+3. **ผู้รับในบริบทใหม่:** ให้ agent อีกตัวอ่าน Skill และ HANDOFF.md ที่ผู้สร้างเพิ่งทำ โดยไม่ให้อ่านเฉลยหรือข้อมูลจาก agent อื่น ผู้รับรัน baseline ได้ exit 1 แก้ renderer และอัปเดตเอกสาร จากนั้น acceptance check และ checker ได้ exit 0 ทั้งคู่
+
+ตรวจผลของผู้รับซ้ำจากไฟล์จริงแล้ว: title/CTA escape ถูกต้อง ภาษาไทยและ /signup คงเดิม BRIEF.md กับ check_page.py คง hash เดิม
+
+นี่เป็นการทดลองขนาดเล็กหนึ่งงานกับ Codex subagents ไม่ใช่ live Claude → Codex run หรือ benchmark ความแม่นยำข้ามโมเดล
 
 ## ข้อจำกัดของหลักฐาน
 
