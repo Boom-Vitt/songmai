@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+.superpowers/
+runs/
+.env
+.env.*
+!.env.example
