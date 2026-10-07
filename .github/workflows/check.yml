@@ -1,0 +1,33 @@
+name: Check Songmai
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ['3.9', '3.13']
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m unittest discover -s tests -v
+      - run: python skills/songmai/scripts/check_handoff.py examples/landing-page/HANDOFF.md --root examples/landing-page
+      - name: Verify baseline fails and resumed solution passes
+        shell: python
+        run: |
+          import pathlib, shutil, subprocess, sys, tempfile
+          with tempfile.TemporaryDirectory(prefix='songmai demo ') as temp:
+              root = pathlib.Path(temp) / 'งาน ตัวอย่าง'
+              shutil.copytree('examples/landing-page', root)
+              baseline = subprocess.run([sys.executable, str(root / 'check_page.py')], capture_output=True, text=True)
+              assert baseline.returncode == 1 and 'title must be escaped' in baseline.stderr, baseline
+              shutil.copyfile(root / 'solution/app.py', root / 'app.py')
+              shutil.rmtree(root / '__pycache__', ignore_errors=True)
+              subprocess.run([sys.executable, str(root / 'check_page.py')], check=True)

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-labelledby="title desc">
+  <title id="title">Songmai — ส่งไม้ให้ AI</title>
+  <desc id="desc">ส่งต่อจากแชตเดิม ผ่าน HANDOFF.md ไปยัง agent ใหม่</desc>
+  <rect width="1280" height="360" rx="28" fill="#101827"/>
+  <circle cx="1170" cy="40" r="160" fill="#142f37"/>
+  <g font-family="Arial, Tahoma, sans-serif">
+    <text x="64" y="79" fill="#baff65" font-size="22" font-weight="700" letter-spacing="4">SONGMAI</text>
+    <text x="64" y="148" fill="#f5f7fb" font-size="52" font-weight="700">ส่งไม้ให้ AI</text>
+    <text x="64" y="195" fill="#b8c4d7" font-size="25">เปลี่ยนแชต · เปลี่ยน Agent · ทำงานต่อจากจุดเดิม</text>
+    <rect x="64" y="245" width="280" height="65" rx="12" fill="#233047"/>
+    <text x="204" y="285" fill="#f5f7fb" font-size="21" text-anchor="middle">CURRENT CHAT</text>
+    <path d="M363 278h62m-13-10 13 10-13 10" fill="none" stroke="#baff65" stroke-width="3"/>
+    <rect x="445" y="245" width="330" height="65" rx="12" fill="#baff65"/>
+    <text x="610" y="285" fill="#101827" font-size="24" font-weight="700" text-anchor="middle">HANDOFF.md</text>
+    <path d="M794 278h62m-13-10 13 10-13 10" fill="none" stroke="#baff65" stroke-width="3"/>
+    <rect x="876" y="245" width="340" height="65" rx="12" fill="#233047"/>
+    <text x="1046" y="285" fill="#f5f7fb" font-size="21" text-anchor="middle">NEXT AGENT</text>
+  </g>
+</svg>
